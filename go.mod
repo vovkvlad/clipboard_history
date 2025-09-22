@@ -3,6 +3,7 @@ module github.com/vovkvlad/clipboard_history
 go 1.24.5
 
 require (
+	github.com/google/uuid v1.6.0 // indirect
 	golang.design/x/clipboard v0.7.1 // indirect
 	golang.org/x/exp/shiny v0.0.0-20250606033433-dcc06ee1d476 // indirect
 	golang.org/x/image v0.28.0 // indirect
