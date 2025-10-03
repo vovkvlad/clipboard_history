@@ -4,33 +4,33 @@ BINARY_DIR=.bin
 
 # Build the application
 build:
-	@echo "Building $(BINARY_NAME)..."
+	@echo "Building $(BINARY_NAME) with FTS5 support..."
 	@mkdir -p $(BINARY_DIR)
-	@go build -o $(BINARY_DIR)/$(BINARY_NAME) .
+	@go build -tags "fts5" -o $(BINARY_DIR)/$(BINARY_NAME) .
 
 # Build for different platforms
 build-linux:
-	@echo "Building for Linux..."
+	@echo "Building for Linux with FTS5 support..."
 	@mkdir -p $(BINARY_DIR)
-	@GOOS=linux GOARCH=amd64 go build -o $(BINARY_DIR)/$(BINARY_NAME)-linux .
+	@GOOS=linux GOARCH=amd64 go build -tags "fts5" -o $(BINARY_DIR)/$(BINARY_NAME)-linux .
 
 build-windows:
-	@echo "Building for Windows..."
+	@echo "Building for Windows with FTS5 support..."
 	@mkdir -p $(BINARY_DIR)
-	@GOOS=windows GOARCH=amd64 go build -o $(BINARY_DIR)/$(BINARY_NAME).exe .
+	@GOOS=windows GOARCH=amd64 go build -tags "fts5" -o $(BINARY_DIR)/$(BINARY_NAME).exe .
 
 build-darwin:
-	@echo "Building for macOS..."
+	@echo "Building for macOS with FTS5 support..."
 	@mkdir -p $(BINARY_DIR)
-	@GOOS=darwin GOARCH=amd64 go build -o $(BINARY_DIR)/$(BINARY_NAME)-darwin .
+	@GOOS=darwin GOARCH=amd64 go build -tags "fts5" -o $(BINARY_DIR)/$(BINARY_NAME)-darwin .
 
 # Build for all platforms
 build-all: build-linux build-windows build-darwin
 
 # Run the application
 run:
-	@echo "Running $(BINARY_NAME)..."
-	@go run .
+	@echo "Running $(BINARY_NAME) with FTS5 support..."
+	@go run -tags "fts5" .
 
 # Clean build artifacts
 clean:

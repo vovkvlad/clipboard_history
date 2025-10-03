@@ -3,22 +3,43 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/vovkvlad/clipboard_history/core/clipboard"
+	"github.com/vovkvlad/clipboard_history/core/storage"
+	"github.com/vovkvlad/clipboard_history/utility"
 )
 
 func main() {
+	// Initialize logger
+	logFile := utility.InitLogger()
+	defer func() {
+		if err := logFile.Close(); err != nil {
+			log.Printf("Error closing log file: %v", err)
+		}
+	}()
+
 	// Create context for cancellation
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	log.Println("Logger initialized")
+
+	// Initialize database
+	_, err := storage.InitDb()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+
+	log.Println("Database initialized")
+
 	// Create watcher and add listener
 	watcher := clipboard.NewWatcher()
 	watcher.Add_listener(func(data []byte) {
-		fmt.Println("Clipboard changed:", string(data))
+		log.Println("Clipboard changed:", string(data))
 	})
 
 	// Set up signal handling for Ctrl+C
@@ -33,22 +54,22 @@ func main() {
 		done <- clipboard.Start(ctx, watcher)
 	}()
 
-	fmt.Println("Press Ctrl+C to exit.")
+	log.Println("Press Ctrl+C to exit.")
 
 	// Wait for either Ctrl+C or the goroutine to finish
 	select {
 	case <-sigChan:
-		fmt.Println("\nReceived interrupt signal, cancelling...")
+		log.Println("\nReceived interrupt signal, cancelling...")
 		cancel()
 		// Wait for the goroutine to finish
 		if err := <-done; err != nil {
-			fmt.Printf("Clipboard watcher error: %v\n", err)
+			log.Fatalf("Clipboard watcher error: %v\n", err)
 		}
 	case err := <-done:
 		if err != nil {
-			fmt.Printf("Clipboard watcher error: %v\n", err)
+			log.Fatalf("Clipboard watcher error: %v\n", err)
 		} else {
-			fmt.Println("Clipboard watcher finished")
+			log.Println("Clipboard watcher finished")
 		}
 	}
 
