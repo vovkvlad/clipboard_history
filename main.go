@@ -29,17 +29,20 @@ func main() {
 	log.Println("Logger initialized")
 
 	// Initialize database
-	_, err := storage.InitDb()
+	storage, err := storage.InitDb()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
+	defer storage.Close()
 
 	log.Println("Database initialized")
 
 	// Create watcher and add listener
 	watcher := clipboard.NewWatcher()
 	watcher.Add_listener(func(data []byte) {
-		log.Println("Clipboard changed:", string(data))
+		text_data := string(data)
+		log.Println("Clipboard changed:", text_data)
+		storage.Add_Clipboard_Entry(text_data)
 	})
 
 	// Set up signal handling for Ctrl+C
