@@ -91,7 +91,7 @@ func (s *Storage) Add_Clipboard_Entry(content string) error {
 			displayContent = first_row.content[:15] + "..."
 		}
 		log.Println("Updating entry in db for content: ", displayContent)
-		_, err := s.db.Exec("UPDATE clipboard_history SET created_at = ? WHERE id = ?", time.Now(), first_row.id)
+		_, err := s.db.Exec("UPDATE clipboard_history SET created_at = datetime('now') WHERE id = ?", first_row.id)
 		if err != nil {
 			log.Fatal("Failed to update entry in db: ", err)
 			return err
@@ -109,4 +109,30 @@ func (s *Storage) Add_Clipboard_Entry(content string) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) Get_Clipboard_History(offset int, limit int) ([]SearchResult, error) {
+	rows, err := s.db.Query("SELECT * FROM clipboard_history ORDER BY created_at DESC LIMIT ? OFFSET ?", limit, offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	results := []SearchResult{}
+
+	for rows.Next() {
+		var id int
+		var content string
+		var created_at time.Time
+
+		if err := rows.Scan(&id, &content, &created_at); err != nil {
+			return nil, err
+		}
+
+		results = append(results, SearchResult{id, content, created_at})
+	}
+
+	return results, nil
 }
